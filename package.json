@@ -1,0 +1,43 @@
+{
+  "name": "onlylegend",
+  "productName": "OnlyLegend",
+  "version": "1.0.0",
+  "description": "A PC launcher that installs games from GitHub and plays them in one place.",
+  "main": "main.js",
+  "author": "Syn34",
+  "license": "MIT",
+  "homepage": "https://github.com/Syn34/OnlyLegend",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/smoke.js",
+    "dist:win": "electron-builder --win nsis portable --x64"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.syn34.onlylegend",
+    "productName": "OnlyLegend",
+    "copyright": "Copyright © 2026 Syn34",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "lib/**", "renderer/**", "games.json", "package.json"],
+    "win": {
+      "icon": "build/icon.ico",
+      "artifactName": "OnlyLegend-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "OnlyLegend"
+    },
+    "portable": {
+      "artifactName": "OnlyLegend-${version}-portable.exe"
+    }
+  }
+}

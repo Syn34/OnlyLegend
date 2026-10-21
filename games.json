@@ -1,0 +1,29 @@
+[
+  {
+    "id": "projshadow",
+    "name": "Spyro: Shadow Legacy",
+    "subtitle": "Native PC port (projShadow)",
+    "repo": "Syn34/projShadow",
+    "description": "The Nintendo DS adventure running natively on PC: OpenGL 3D, full sound, saving and loading, keyboard and controller support, and resolutions up to 4K. Uses your own copy of the game.",
+    "color": "#7b3fe4",
+    "platforms": ["win32"],
+    "install": {
+      "from": "release",
+      "asset": "^spShadowLegacy.*\\.(exe|zip)$"
+    },
+    "launch": {
+      "type": "exe",
+      "entry": "spShadowLegacy.exe",
+      "entryPattern": "^spShadowLegacy\\.exe$"
+    },
+    "requires": {
+      "key": "rom",
+      "label": "Spyro: Shadow Legacy (USA) ROM",
+      "help": "Pick your own copy of the game (.nds, game code ASSE). The launcher never downloads or shares it.",
+      "extensions": ["nds"],
+      "ndsGameCode": "ASSE",
+      "passAs": "argument"
+    },
+    "keepFiles": ["spyro.sav", "spyro.ini", "spyro.log"]
+  }
+]

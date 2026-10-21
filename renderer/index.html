@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>OnlyLegend</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2 29 9v14L16 30 3 23V9z" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M11 9v14h10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/>
+      </svg>
+      <div>
+        <div class="brand-name">OnlyLegend</div>
+        <div class="brand-sub">Game launcher</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Games</div>
+    <nav id="game-list" class="game-list" aria-label="Games"></nav>
+
+    <div class="sidebar-foot">
+      <div id="catalog-source" class="catalog-source"></div>
+      <button id="library-btn" class="link-btn" title="">Library folder</button>
+      <button id="library-change" class="link-btn">Change…</button>
+    </div>
+  </aside>
+
+  <main id="detail" class="detail">
+    <div class="empty">Loading games…</div>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
