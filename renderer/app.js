@@ -78,21 +78,43 @@ function renderList() {
 }
 
 // ---------- detail ----------
-function renderProgress(g) {
+// While downloading, the Download button turns into a bar that fills with the percent downloaded.
+function progressInfo(g) {
   const p = progress[g.id] || { stage: 'resolving' };
+  if (p.stage === 'resolving') return { pct: 0, text: '0%' };
+  if (p.stage === 'installing') return { pct: 100, text: 'Installing…' };
   const total = p.total || p.size || 0;
-  const pct = total ? Math.min(100, Math.round((p.received / total) * 100)) : null;
-  const label =
-    p.stage === 'resolving' ? 'Finding the latest version…'
-    : p.stage === 'installing' ? 'Installing…'
-    : total ? `${fmtBytes(p.received)} of ${fmtBytes(total)}`
-    : `${fmtBytes(p.received || 0)} downloaded`;
-  const indeterminate = p.stage !== 'downloading' || pct === null;
-  return `<div class="progress">
-      <div class="progress-top"><span>${esc(label)}</span><span>${pct !== null && !indeterminate ? pct + '%' : ''}</span></div>
-      <div class="progress-bar ${indeterminate ? 'indeterminate' : ''}"><div class="progress-fill" style="${indeterminate ? '' : `width:${pct}%`}"></div></div>
+  if (!total) return { pct: null, text: fmtBytes(p.received || 0) };
+  const pct = Math.min(100, Math.floor(((p.received || 0) / total) * 100));
+  return { pct, text: `${pct}%` };
+}
+
+function renderProgress(g) {
+  const { pct, text } = progressInfo(g);
+  return `<div class="dl-bar ${pct === null ? 'indeterminate' : ''}" role="progressbar" aria-label="Downloading ${esc(g.name)}"
+        aria-valuemin="0" aria-valuemax="100" ${pct === null ? '' : `aria-valuenow="${pct}"`}>
+      <div class="dl-fill" style="width:${pct ?? 0}%"></div>
+      <span class="dl-text">${esc(text)}</span>
     </div>
     <button class="btn btn-ghost" data-act="cancel">Cancel</button>`;
+}
+
+// Update the bar in place so the fill slides smoothly instead of being redrawn.
+function updateProgress(g) {
+  const actions = document.querySelector('.actions');
+  if (!actions) return;
+  let bar = actions.querySelector('.dl-bar');
+  if (!bar) {
+    actions.innerHTML = renderProgress(g);
+    actions.querySelector('[data-act=cancel]').addEventListener('click', () => act(g.id, 'cancel'));
+    return;
+  }
+  const { pct, text } = progressInfo(g);
+  bar.classList.toggle('indeterminate', pct === null);
+  bar.querySelector('.dl-fill').style.width = `${pct ?? 0}%`;
+  bar.querySelector('.dl-text').textContent = text;
+  if (pct === null) bar.removeAttribute('aria-valuenow');
+  else bar.setAttribute('aria-valuenow', String(pct));
 }
 
 function renderActions(g) {
@@ -100,31 +122,11 @@ function renderActions(g) {
   if (!g.installed) {
     return `<button class="btn btn-primary" data-act="install">Download</button>`;
   }
-  const blocked = g.requiredFile && g.requiredFile.problem;
   const upd = updates[g.id];
-  return `<button class="btn btn-primary btn-play" data-act="play" ${g.running || blocked ? 'disabled' : ''}>
+  return `<button class="btn btn-primary btn-play" data-act="play" ${g.running ? 'disabled' : ''}>
       ${g.running ? 'Playing' : 'Play'}
     </button>
     ${upd?.available ? `<button class="btn" data-act="install">Update to ${esc(shortVersion(upd.latest))}</button>` : ''}`;
-}
-
-function renderRequirement(g) {
-  if (!g.requires) return '';
-  const r = g.requiredFile;
-  const ok = !r.problem;
-  return `<div class="card">
-    <h2>Needed to play</h2>
-    <div class="req ${ok ? 'ok' : ''}">
-      <span class="req-dot"></span>
-      <div style="min-width:0;flex:1">
-        <div class="req-title">${esc(g.requires.label)}</div>
-        <div class="req-help">${esc(g.requires.help || '')}</div>
-        ${r.path ? `<div class="req-path">${esc(r.path)}</div>` : ''}
-        ${!ok && r.path ? `<div class="req-problem">${esc(r.problem)}</div>` : ''}
-        <button class="btn" data-act="choose">${r.path ? 'Change file…' : 'Choose file…'}</button>
-      </div>
-    </div>
-  </div>`;
 }
 
 function renderDetail() {
@@ -151,7 +153,6 @@ function renderDetail() {
     </section>
     <section class="body">
       <div>
-        ${renderRequirement(g)}
         <div class="card">
           <h2>About</h2>
           <dl class="facts">
@@ -204,9 +205,6 @@ async function act(id, what) {
     case 'play':
       upsert(await run(() => api.play(id)));
       break;
-    case 'choose':
-      upsert(await run(() => api.chooseFile(id)));
-      break;
     case 'folder':
       api.openFolder(id);
       break;
@@ -230,11 +228,7 @@ api.on('game:progress', (p) => {
   progress[p.id] = p;
   if (p.id === selected) {
     const g = games.find((x) => x.id === p.id);
-    const actions = document.querySelector('.actions');
-    if (g && g.downloading && actions) {
-      actions.innerHTML = renderProgress(g);
-      actions.querySelector('[data-act=cancel]').addEventListener('click', () => act(g.id, 'cancel'));
-    }
+    if (g && g.downloading) updateProgress(g);
   }
 });
 api.on('game:changed', upsert);
