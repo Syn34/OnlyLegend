@@ -192,9 +192,12 @@ async function act(id, what) {
       const wasInstalled = g.installed;
       progress[id] = { stage: 'resolving' };
       const res = await run(() => api.install(id));
+      delete progress[id];
+      // Whatever happened (done, failed or cancelled), show the game's real state now.
+      upsert(await api.state(id));
       if (res) {
         delete updates[id];
-        upsert(res);
+        render();
         toast(`${g.name} ${wasInstalled ? 'updated' : 'installed'}.`, 'ok');
       }
       break;

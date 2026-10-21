@@ -134,14 +134,15 @@ ipcMain.handle('game:install', async (_e, id) => {
   send('game:changed', gameState(game));
   try {
     await installer.install(fetchFn, library(), game, (p) => send('game:progress', { id, ...p }), ctrl.signal);
-    return gameState(game);
   } catch (e) {
     if (ctrl.signal.aborted) throw new Error('Download cancelled.');
     throw e;
   } finally {
+    // Clear the download before building any state, so nothing reports it as still downloading.
     downloads.delete(id);
     send('game:changed', gameState(game));
   }
+  return gameState(game);
 });
 
 ipcMain.handle('game:cancel', (_e, id) => {
