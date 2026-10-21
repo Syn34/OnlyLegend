@@ -27,6 +27,7 @@ jobs:
       - name: Smoke test
         run: npm test
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SMOKE_REPO: ${{ github.repository }}
           SMOKE_BRANCH: ${{ github.sha }}
 
