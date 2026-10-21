@@ -57,3 +57,14 @@ jobs:
         with:
           files: dist/*.exe
           generate_release_notes: true
+
+      # Manual runs (Run workflow) also put the portable exe on a private draft release, so it can be
+      # downloaded without going through Actions artifacts. Drafts are visible only to the repo owner.
+      - name: Draft release with the portable exe
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Test build ${{ github.run_number }}
+          draft: true
+          files: dist/*-portable.exe
