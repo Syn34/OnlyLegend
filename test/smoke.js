@@ -44,6 +44,26 @@ const { checkRequiredFile } = require('../lib/files');
     buf.write('XXXX', 0x0c, 'latin1'); fs.writeFileSync(rom, buf);
     assert(checkRequiredFile(req, rom));
   }
+  // Release install (what projShadow uses), against a fake GitHub.
+  const shadow = catalog.find((g) => g.id === 'projshadow');
+  if (shadow) {
+    const exeBytes = Buffer.from('MZ fake exe');
+    const fakeFetch = async (url) => {
+      const json = (o) => ({ ok: true, status: 200, headers: new Map(), json: async () => o });
+      if (url.endsWith('/releases/latest')) {
+        return json({ tag_name: 'v0.9', name: 'v0.9', assets: [
+          { name: 'source.tar.gz', size: 1, browser_download_url: 'https://x/src' },
+          { name: 'spShadowLegacy.exe', size: exeBytes.length, browser_download_url: 'https://x/exe' } ] });
+      }
+      return { ok: true, status: 200, headers: new Map([['content-length', String(exeBytes.length)]]),
+        body: new Blob([exeBytes]).stream() };
+    };
+    const sm = await installer.install(fakeFetch, lib, shadow, () => {});
+    assert.strictEqual(sm.version, 'v0.9');
+    assert(installer.findEntry(lib, shadow).endsWith('spShadowLegacy.exe'), 'release exe installed');
+    console.log('release install ok:', sm.label);
+  }
+
   fs.rmSync(lib, { recursive: true, force: true });
   console.log('all smoke tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -1,0 +1,53 @@
+name: Build OnlyLegend
+
+# Every push builds the Windows exe (download it from the run's Artifacts).
+# Pushing a tag like v1.0.1 also publishes a GitHub Release with the installer and portable exe.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Smoke test
+        run: npm test
+        env:
+          SMOKE_REPO: ${{ github.repository }}
+          SMOKE_BRANCH: ${{ github.sha }}
+
+      - name: Set version from tag
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+
+      - name: Build exe
+        run: npx electron-builder --win nsis portable --x64 --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OnlyLegend-windows
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true
