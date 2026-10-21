@@ -150,6 +150,7 @@ button:disabled { cursor: default; opacity: .55; }
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; user-select: text; }
 .facts a { color: var(--gold); text-decoration: none; cursor: pointer; }
 .facts a:hover { text-decoration: underline; }
+.req-min { margin: 0 0 14px; color: var(--text); font-weight: 600; }
 .side-actions { display: flex; flex-direction: column; gap: 8px; }
 .side-actions .btn { width: 100%; text-align: left; }
 .notice { border-left: 3px solid var(--warn); padding: 10px 14px; background: color-mix(in srgb, var(--warn) 8%, transparent); border-radius: 0 8px 8px 0; color: #f3dcb6; line-height: 1.45; margin-top: 18px; max-width: 680px; }

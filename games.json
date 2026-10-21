@@ -22,6 +22,16 @@
       "spyro.sav",
       "spyro.ini",
       "spyro.log"
-    ]
+    ],
+    "requirements": {
+      "minimum": "Requires a 32-bit processor and operating system",
+      "os": "Windows 7 (32-bit or 64-bit)",
+      "processor": "Dual-core 2.4 GHz with SSE2 (Intel Core 2 Duo E6600 / AMD Athlon 64 X2 6000+)",
+      "memory": "1 GB RAM",
+      "graphics": "OpenGL 3.0 support (NVIDIA GeForce 8400 GS / ATI Radeon HD 2400 / Intel HD Graphics 2000)",
+      "directx": "Not required (uses OpenGL)",
+      "network": "Not required",
+      "storage": "80 MB available space"
+    }
   }
 ]

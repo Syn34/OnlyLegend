@@ -129,6 +129,23 @@ function renderActions(g) {
     ${upd?.available ? `<button class="btn" data-act="install">Update to ${esc(shortVersion(upd.latest))}</button>` : ''}`;
 }
 
+const REQUIREMENT_ROWS = [
+  ['os', 'OS'], ['processor', 'Processor'], ['memory', 'Memory'], ['graphics', 'Graphics'],
+  ['directx', 'DirectX'], ['network', 'Network'], ['storage', 'Storage'],
+];
+
+function renderRequirements(g) {
+  const r = g.requirements;
+  if (!r) return '';
+  const rows = REQUIREMENT_ROWS.filter(([k]) => r[k])
+    .map(([k, label]) => `<dt>${label}</dt><dd>${esc(r[k])}</dd>`).join('');
+  return `<div class="card">
+      <h2>Minimum requirements</h2>
+      ${r.minimum ? `<p class="req-min">${esc(r.minimum)}</p>` : ''}
+      <dl class="facts">${rows}</dl>
+    </div>`;
+}
+
 function renderDetail() {
   const g = games.find((x) => x.id === selected);
   const main = $('#detail');
@@ -162,6 +179,7 @@ function renderDetail() {
             ${g.platforms ? `<dt>Platform</dt><dd>${g.platforms.map((p) => ({ win32: 'Windows', darwin: 'macOS', linux: 'Linux' }[p] || p)).join(', ')}</dd>` : ''}
           </dl>
         </div>
+        ${renderRequirements(g)}
       </div>
       <div>
         <div class="card">
