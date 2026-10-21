@@ -10,7 +10,8 @@
   "scripts": {
     "start": "electron .",
     "test": "node test/smoke.js",
-    "dist:win": "electron-builder --win nsis portable --x64"
+    "dist:win": "node scripts/inject-token.js && electron-builder --win portable --x64",
+    "dist:win:all": "node scripts/inject-token.js && electron-builder --win nsis portable --x64"
   },
   "dependencies": {
     "adm-zip": "^0.5.16"
@@ -22,9 +23,19 @@
   "build": {
     "appId": "com.syn34.onlylegend",
     "productName": "OnlyLegend",
-    "copyright": "Copyright © 2026 Syn34",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "lib/**", "renderer/**", "games.json", "package.json"],
+    "copyright": "Copyright \u00a9 2026 Syn34",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**",
+      "renderer/**",
+      "games.json",
+      "package.json"
+    ],
     "win": {
       "icon": "build/icon.ico",
       "artifactName": "OnlyLegend-Setup-${version}.${ext}"

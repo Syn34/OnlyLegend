@@ -15,7 +15,35 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'game', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } },
 ]);
 
-const fetchFn = (url, opts) => net.fetch(url, opts);
+// net.fetch can't stop at a redirect (it throws), and downloads must stop at GitHub's redirect so
+// the access key isn't sent on to the storage server. Those requests go through net.request instead.
+const { Readable } = require('stream');
+function fetchFn(url, opts = {}) {
+  if (opts.redirect !== 'manual') return net.fetch(url, opts);
+  return new Promise((resolve, reject) => {
+    const req = net.request({ url, method: 'GET', redirect: 'manual', headers: opts.headers || {} });
+    const abort = () => {
+      req.abort();
+      reject(Object.assign(new Error('Download cancelled.'), { name: 'AbortError' }));
+    };
+    if (opts.signal) {
+      if (opts.signal.aborted) return abort();
+      opts.signal.addEventListener('abort', abort, { once: true });
+    }
+    req.on('redirect', (status, _method, location) => {
+      req.abort();
+      resolve(new Response(null, { status, headers: { location } }));
+    });
+    req.on('response', (res) => {
+      const headers = new Headers();
+      for (const [k, v] of Object.entries(res.headers)) headers.set(k, Array.isArray(v) ? v.join(', ') : String(v));
+      const body = res.statusCode === 204 || res.statusCode === 304 ? null : Readable.toWeb(res);
+      resolve(new Response(body, { status: res.statusCode, headers }));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
 
 let win;
 let catalog = [];

@@ -69,6 +69,22 @@ matching `asset`. For **projShadow**, that means a release with `spShadowLegacy.
 The exe is built from the projShadow repo with `python3 tools/pcbuild.py`, and the player's ROM
 is never part of the release: OnlyLegend asks each player for their own.
 
+### Private game repos
+
+OnlyLegend can download from private repos with an access key built into the launcher. The key is
+never in this repository: `scripts/inject-token.js` adds it at build time from the
+`OL_GITHUB_TOKEN` secret (GitHub Actions) or environment variable (local builds).
+
+1. Create a [fine-grained token](https://github.com/settings/personal-access-tokens/new):
+   resource owner **Syn34**, *Only select repositories* → the private game repos,
+   permissions → **Contents: Read-only**. Nothing else.
+2. In this repo: *Settings → Secrets and variables → Actions → New repository secret*,
+   name `OL_GITHUB_TOKEN`, value the token.
+3. Push or run the workflow; the exe it builds can download those repos.
+
+Anyone with the exe can recover the key, so it must stay read-only and limited to the game repos.
+When it expires, launchers already handed out stop downloading until players get a new build.
+
 ## Building
 
 ```sh

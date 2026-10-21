@@ -36,6 +36,11 @@ jobs:
         shell: bash
         run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
 
+      - name: Add the access key for private game repos
+        run: node scripts/inject-token.js
+        env:
+          OL_GITHUB_TOKEN: ${{ secrets.OL_GITHUB_TOKEN }}
+
       - name: Build exe
         run: npx electron-builder --win nsis portable --x64 --publish never
 
