@@ -146,6 +146,13 @@ function renderRequirements(g) {
     </div>`;
 }
 
+// Header art: an image bundled with the launcher (renderer/art/...) or an https address.
+function heroArt(g) {
+  const src = g.heroImage;
+  if (typeof src !== 'string' || !(/^art\/[\w.-]+\.(png|webp|jpg)$/i.test(src) || /^https:\/\//i.test(src))) return '';
+  return `<img class="hero-art" src="${esc(src)}" alt="" aria-hidden="true" draggable="false" />`;
+}
+
 function renderDetail() {
   const g = games.find((x) => x.id === selected);
   const main = $('#detail');
@@ -161,6 +168,7 @@ function renderDetail() {
   main.style.setProperty('--game-color', g.color || '#7b3fe4');
   main.innerHTML = `
     <section class="hero">
+      ${heroArt(g)}
       <div class="hero-kicker">${g.installed ? 'In your library' : 'Available'}</div>
       <h1>${esc(g.name)}</h1>
       ${g.subtitle ? `<div class="hero-sub">${esc(g.subtitle)}</div>` : ''}

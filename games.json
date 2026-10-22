@@ -32,6 +32,7 @@
       "directx": "Not required (uses OpenGL)",
       "network": "Not required",
       "storage": "80 MB available space"
-    }
+    },
+    "heroImage": "art/projshadow-hero.png"
   }
 ]
